@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { supabase } from '@/lib/db';
 
 export default function Home() {
   const [clickCount, setClickCount] = useState<number | null>(null);
@@ -9,16 +10,26 @@ export default function Home() {
   /** 初回読み込みで visitor を加算 */
   useEffect(() => {
     const fetchCounts = async () => {
-      const [visitorRes, clickRes] = await Promise.all([
-        fetch('/api/visitor', { method: 'POST' }),
-        fetch('/api/click', { method: 'GET' }),
-      ]);
+      /** visitor count インクリメント */
+      await supabase.rpc('increment_visitor_count');
 
-      const visitorData = await visitorRes.json();
-      const clickData = await clickRes.json();
+      /** visitor count 取得 */
+      const { data: visitorData } = await supabase
+        .from('visitor_counts')
+        .select('count')
+        .eq('id', 1)
+        .single();
 
-      setVisitorCount(visitorData.count);
-      setClickCount(clickData.count);
+      setVisitorCount(visitorData?.count ?? 0);
+
+      /** click count 取得 */
+      const { data: clickData } = await supabase
+        .from('click_counts')
+        .select('count')
+        .eq('id', 1)
+        .single();
+
+      setClickCount(clickData?.count ?? 0);
     };
 
     fetchCounts();
@@ -29,9 +40,18 @@ export default function Home() {
     setIsScared(true);
     /** 3秒後に画像を元に戻す */
     setTimeout(() => setIsScared(false), 300);
-    const res = await fetch('/api/click', { method: 'POST' });
-    const data = await res.json();
-    setClickCount(data.count);
+
+    /** click count インクリメント */
+    await supabase.rpc('increment_click_count');
+
+    /** 最新の click count を取得 */
+    const { data } = await supabase
+      .from('click_counts')
+      .select('count')
+      .eq('id', 1)
+      .single();
+
+    setClickCount(data?.count ?? 0);
   };
 
   return (
