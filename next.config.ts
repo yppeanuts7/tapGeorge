@@ -1,4 +1,3 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
   reactStrictMode: true,
@@ -6,5 +5,3 @@ const nextConfig = {
     unoptimized: true,
   },
 };
-
-module.exports = nextConfig;
