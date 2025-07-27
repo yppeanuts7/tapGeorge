@@ -1,8 +1,11 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  reactStrictMode: true,
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  /** Next.jsはサーバ側で動的にページを作るフレームワークなのでGitHub Pagesのような静的ホスティングサービスでは基本的に動作しない */
+  /** Next.jsを静的サイトにビルドしてそれをGitHub Pagesにアップロードする */
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
